@@ -8,23 +8,34 @@ LiquidCrystal lcd(8, 9, 4,5,6,7);
 #define DELAY 300
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PINLED, NEO_GRB + NEO_KHZ800);
 uint8_t ledmatrix[26]={9,20,22,11,6,12,13,14,1,15,16,17,19,18,0,25,8,5,10,4,2,21,7,23,24,3};
-uint8_t nRotors=4;// Reflector B + I + II + III
-String  rotorLabel[4]={"    "," I  "," II ","III "};
-int8_t rotorSetup[4][4]={{0,0,0,0},{1,0,0,17},{2,0,0,5},{3,1,25,22}}; //Rotor,RingStellum,CurrentPos,Notch
-uint8_t rotorDefinition[9][26]={
-       {24,16,18,4,12,13,5,22,7,14,3,21,2,23,24,19,14,10,13,6,8,1,25,12,2,20},//0 is reflector B
-       {4,9,10,2,7,1,23,9,13,16,3,8,2,9,10,18,7,3,0,22,6,13,5,20,4,10},
-       {0,8,1,7,14,3,11,13,15,18,1,22,10,6,24,13,0,15,7,20,21,3,9,24,16,5},
-       {1,2,3,4,5,6,22,8,9,10,13,10,13,0,10,15,18,5,14,7,16,17,24,21,18,15}
-       }; 
-uint8_t inverseRotorDefinition[9][26]={
-       {24,16,18,4,12,13,5,22,7,14,3,21,2,23,24,19,14,10,13,6,8,1,25,12,2,20},//0 is reflector B
-       {6,5,4,23,4,2,1,18,13,10,9,7,10,3,2,22,9,20,0,8,3,13,9,7,10,16},
-       {0,18,13,1,5,9,15,22,3,8,7,1,24,20,16,21,0,11,14,6,13,24,10,15,3,7},
-       {7,1,22,2,15,3,14,4,18,5,16,6,17,0,15,8,18,9,21,10,24,10,5,13,10,13}
+uint8_t nRotors=11;// Reflector B + I + II + III
+String  rotorLabel[9]={"    "," I  "," II ","III "," IV "," V  "," VI ","VII","VIII"};
+int8_t  rotorSetup[4][3]={{0,0,0},{1,0,0},{2,0,0},{3,0,0}}; //Rotor,RingStellum,CurrentPos
+uint8_t rotorDefinition[9][27]={//26 wires + notch. If Notch is 99=>its a double Notch (M and Z)
+       {24,16,18,4 ,12,13,5 ,22,7 ,14,3 ,21,2 ,23,24,19,14,10,13,6 ,8 ,1 ,25,12,2 ,20,0 },//0 is reflector B
+       {4 ,9 ,10,2 ,7 ,1 ,23,9 ,13,16,3 ,8 ,2 ,9 ,10,18,7 ,3 ,0 ,22,6 ,13,5 ,20,4 ,10,17},//I
+       {0 ,8 ,1 ,7 ,14,3 ,11,13,15,18,1 ,22,10,6 ,24,13,0 ,15,7 ,20,21,3 ,9 ,24,16,5 ,5 },//II
+       {1 ,2 ,3 ,4 ,5 ,6 ,22,8 ,9 ,10,13,10,13,0 ,10,15,18,5 ,14,7 ,16,17,24,21,18,15,22},//III
+       {4 ,17,12,18,11,20,3 ,19,16,7 ,10,23,5 ,20,9 ,22,23,14,1 ,13,16,8 ,6 ,15,24,2 ,10},//IV
+       {21,24,25,14,2,3,13,17,12,6,8,18,1,20,23,8,10,5,20,16,22,19,9,7,4,11,26},//V
+       {9,14,4,18,10,15,6,24,16,7,17,19,1,20,11,2,13,19,8,25,3,16,12,5,21,23,99},//VI
+       {13,24,7,4,2,12,22,16,4,15,8,11,15,1,6,16,10,17,3,18,21,9,14,19,5,20,99},//VII
+       {5,9,14,4,15,6,17,7,20,18,25,7,3,16,11,2,10,21,12,3,19,13,24,1,8,22,99},//VIII
        }; 
 
-uint8_t plugBoard[20]={0,1,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99};
+uint8_t inverseRotorDefinition[9][26]={//Reverse wire for convenience
+       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},//0 is reflector B
+       {6,5,4,23,4,2,1,18,13,10,9,7,10,3,2,22,9,20,0,8,3,13,9,7,10,16},//I
+       {0,18,13,1,5,9,15,22,3,8,7,1,24,20,16,21,0,11,14,6,13,24,10,15,3,7},//II
+       {7,1,22,2,15,3,14,4,18,5,16,6,17,0,15,8,18,9,21,10,24,10,5,13,10,13},//III
+       {19,2,6,8,4,14,13,20,23,3,16,22,15,23,12,11,7,5,17,1,10,18,24,9,16,20},//IV
+       {10,25,4,18,7,9,2,20,3,16,11,23,20,1,19,6,22,14,8,13,12,21,5,8,17,24},//V
+       {8,17,5,13,19,24,4,20,12,9,19,16,6,1,10,14,7,2,25,21,15,18,23,3,16,11},//VI
+       {10,15,22,5,9,16,2,4,17,7,14,18,4,13,1,21,19,12,8,20,6,3,11,16,15,24},//VII
+       {10,18,20,16,12,5,8,4,13,25,9,6,21,19,7,3,14,2,7,15,24,22,3,17,1,11},//VIII
+       }; 
+
+uint8_t plugBoard[20]={99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99};
 
 
 String mode="";
@@ -50,7 +61,7 @@ pinMode(A11,INPUT_PULLUP);
   strip.setBrightness(BRIGHTNESS);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-  //hello();
+  hello();
   ledOff();
   displayRotors();
   
@@ -173,9 +184,9 @@ if (readKeyboard()!=' '){
 for (uint8_t n=0;n<10;n++){
   char l1=plugBoard[n*2];
   char l2=plugBoard[n*2+1];
-  if (l1==c){
+  if ((l1==c)&&(l2!=' ')){
     c=l2;
-  }else if(l2==c){
+  }else if((l2==c)&&(l1!=' ')){
     c=l1;
   }
 }  
@@ -346,15 +357,19 @@ void prevRotor(uint8_t rotor){
   if (rotorSetup[rotor][0]<0){rotorSetup[rotor][0]=nRotors-1;}  
   }
 
-void nextRotorPos(uint8_t rotor){
+void nextRotorPos(uint8_t rotorOrder){
   
-  if (rotor>0){   
-     rotorSetup[rotor][2]++;
-     if (rotorSetup[rotor][2]==rotorSetup[rotorSetup[rotor][0]][3]){
-      nextRotorPos(rotor-1);
+  if (rotorOrder>0){   
+     rotorSetup[rotorOrder][2]++;
+     uint8_t notch1=rotorDefinition[rotorSetup[rotorOrder][0]][26];
+     uint8_t notch2=notch1;
+     if (notch1==99){notch1=13;notch2=26;} //Its a VI,VII or VIII rotor with double notch on M and Z
+      
+     if ((rotorSetup[rotorOrder][2]==notch1)||(rotorSetup[rotorOrder][2]==notch2)){
+      nextRotorPos(rotorOrder-1);
       }
-     if (rotorSetup[rotor][2]>25){
-      rotorSetup[rotor][2]=0;
+     if (rotorSetup[rotorOrder][2]>25){
+      rotorSetup[rotorOrder][2]=0;
       }  
      delay(DELAY);
      
